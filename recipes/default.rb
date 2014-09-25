@@ -33,6 +33,27 @@ end
 include_recipe 'composer'
 include_recipe 'php-fpm'
 
+# service 'php5-fpm' do
+#  action [:enable, :start]
+# end
+
+
+template '/etc/php5/mods-available/apc.ini' do
+  source "apc.ini.erb"
+  owner "root"
+  group 0
+  mode 00644
+  notifies :reload, 'service[php-fpm]'
+end
+
+template "#{node['eas_lemp']['fpm_dir']}/php.ini" do
+  source "php.ini.erb"
+  owner "root"
+  group 0
+  mode 00644
+  notifies :reload, 'service[php-fpm]'
+end
+
 include_recipe 'mysql::server'
 
 mysql_service 'default' do

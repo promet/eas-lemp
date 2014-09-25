@@ -1,0 +1,11 @@
+extension=apc.so
+
+apc.rfc1867=<%= node[:eas_lemp][:apc][:apc_rfc1867] %>
+apc.enabled=<%= node[:eas_lemp][:apc][:apc_enabled] %>
+apc.shm_segments=<%= node[:eas_lemp][:apc][:shm_segments] %>
+apc.ttl=<%= node[:eas_lemp][:apc][:ttl] %>
+apc.user_ttl=<%= node[:eas_lemp][:apc][:user_ttl] %>
+apc.num_files_hint=<%= node[:eas_lemp][:apc][:num_files_hint] %>
+; apc.mmap_file_mask=/tmp/apc.XXXXXX
+apc.enable_cli=<%= node[:eas_lemp][:apc][:enable_cli] %>
+apc.shm_size=<%= node[:eas_lemp][:apc][:shm_size] %>
