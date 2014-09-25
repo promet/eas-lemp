@@ -18,19 +18,19 @@
 #
 
 # add additional user
-include_recipe 'apt'
 include_recipe 'eas-base'
 include_recipe 'nginx'
+include_recipe 'nginx::commons_conf'
 
 include_recipe 'php'
 # modules installs are deprecated in php
-%w(php5-mysql php5-gd php5-memcache php5-curl).each do |pkg|
+%w(php5-mysql php5-mcrypt php-apc php5-gd php5-memcache php5-curl).each do |pkg|
   package pkg do
     action :install
   end
 end
 
-
+include_recipe 'composer'
 include_recipe 'php-fpm'
 
 include_recipe 'mysql::server'
