@@ -57,3 +57,7 @@ default['eas_lemp']['apc']['user_ttl'] = "3600"
 default['eas_lemp']['apc']['num_files_hint'] = "1024"
 default['eas_lemp']['apc']['enable_cli'] = "0"
 default['eas_lemp']['apc']['shm_size'] = "96"
+
+default['drupal']['sites_dir'] = '/var/www/sites'
+default['drupal']['user'] = 'www-data'
+default['drupal']['group'] = 'www-data'
