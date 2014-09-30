@@ -16,3 +16,5 @@ suites:
     run_list:
       - recipe[eas-lemp::default]
     attributes:
+      rsyslog:
+        server_ip: "33.33.33.10"

@@ -22,53 +22,5 @@ include_recipe 'eas-base'
 include_recipe 'nginx'
 include_recipe 'nginx::commons_conf'
 
-include_recipe 'php'
-# modules installs are deprecated in php
-%w(php5-mysql php5-mcrypt php-apc php5-gd php5-memcache php5-curl).each do |pkg|
-  package pkg do
-    action :install
-  end
-end
-
-include_recipe 'composer'
-include_recipe 'php-fpm'
-
-# service 'php5-fpm' do
-#  action [:enable, :start]
-# end
-
-
-template '/etc/php5/mods-available/apc.ini' do
-  source "apc.ini.erb"
-  owner "root"
-  group 0
-  mode 00644
-  notifies :reload, 'service[php-fpm]'
-end
-
-template "#{node['eas_lemp']['fpm_dir']}/php.ini" do
-  source "php.ini.erb"
-  owner "root"
-  group 0
-  mode 00644
-  notifies :reload, 'service[php-fpm]'
-end
-
-include_recipe 'mysql::server'
-
-mysql_service 'default' do
-  allow_remote_root true
-  remove_anonymous_users true
-  remove_test_database false
-  server_root_password 'easmysql'
-  server_repl_password 'replpass'
-  server_debian_password 'debianpass'
-  action :create
-end
-
-template '/etc/mysql/conf.d/my-local.cnf' do
-  owner 'mysql'
-  owner 'mysql'
-  source 'my-local.cnf.erb'
-  notifies :restart, 'mysql_service[default]'
-end
+include_recipe 'eas-lemp::_php'
+include_recipe 'eas-lemp::_mysql'
