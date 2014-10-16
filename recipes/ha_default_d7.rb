@@ -1,6 +1,6 @@
 #
 # Cookbook Name:: eas-lemp
-# Recipe:: default_d7
+# Recipe:: ha_default_d7
 #
 # Copyright (C) 2014 opscale
 #
@@ -17,10 +17,27 @@
 # limitations under the License.
 #
 
-# add additional user
-include_recipe 'eas-base'
-include_recipe 'nginx'
-include_recipe 'nginx::commons_conf'
+include_recipe 'apt'
+include_recipe 'git'
+include_recipe 'cron'
+include_recipe 'ntp'
+include_recipe 'logrotate'
+include_recipe 'vim'
+
+node['eas-base']['all_users'].each do |user_group|
+  users_manage user_group do
+    data_bag 'users'
+  end
+end
+
+include_recipe 'sudo'
+include_recipe 'postfix'
+include_recipe 'eas-base::_rsyslog'
+include_recipe 'nrpe'
+include_recipe 'eas-base::_base_monitoring'
+
+include_recipe 'eas-base::_route53' if node.attribute?('ec2')
+include_recipe 'chef-client::cron'
 
 include_recipe 'php'
 # modules installs are deprecated in php
@@ -75,6 +92,8 @@ end
 
 include_recipe 'database::mysql'
 
+#### RDS STUFF HERE ####
+
 mysql_connection_info = {:host => "localhost",
                          :username => 'root',
                          :password => node['mysql']['server_root_password']}
@@ -98,6 +117,8 @@ mysql_database_user 'testDBA' do
   privileges [:all]
   action :grant
 end
+
+#### END RDS STUFF ####
 
 # create nginx site from template
    cookbook_file 'nginx-defaultd7-tmpl' do
@@ -152,3 +173,33 @@ template "/root/.my.cnf" do
   group node['mysql']['root_group']
   mode "0600"
 end
+
+#### EXTRAS: Register the instance to an ELB ####
+#
+node['nginx']['domain'].each do |domain, config|
+
+# associate webserver with an Elastic Load Balancer ONLY
+
+aws_elastic_ip config['elastic_ip'] do
+  aws_access_key 'AKIAJVRADK3WD7TXE5NQ'
+  aws_secret_access_key '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'
+  ip config['elastic_ip']
+  action :associate
+end
+
+# set the route 53 record to the ELB server
+include_recipe 'route53'
+
+route53_record 'create a record' do
+  name config['alt_url']
+  value config['elb_dns']
+  type 'CNAME'
+  zone_id node['eas-base']['zone_id']
+  aws_access_key_id 'AKIAJYBNKLCTMKBPAZHA'
+  aws_secret_access_key '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'
+  overwrite true
+  action :create
+end
+
+end
+
